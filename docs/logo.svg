@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 208" width="880" height="208" role="img" aria-label="Travel Agent">
+  <title>Travel Agent — Rochester day-trip planner</title>
+
+  <!-- Self-contained panel: renders identically on GitHub's light and dark themes -->
+  <rect x="0" y="0" width="880" height="208" rx="16" fill="#0F1720"/>
+
+  <!-- wordmark -->
+  <text x="48" y="80"
+        font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+        font-size="42" font-weight="700" letter-spacing="7" fill="#F2F5F7">TRAVEL AGENT</text>
+
+  <text x="52" y="110"
+        font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+        font-size="14" letter-spacing="3" fill="#6E8091">ROCHESTER · FINGER LAKES</text>
+
+  <!-- route: a day's itinerary, with one stop lifted out of line -->
+  <g stroke="#E8833A" stroke-width="2.5" fill="none" stroke-linecap="round">
+    <path d="M 52 166 H 236"/>
+    <path d="M 236 166 Q 300 166 322 144 Q 344 122 404 122"/>
+    <path d="M 404 122 Q 464 122 486 144 Q 508 166 572 166"/>
+    <path d="M 572 166 H 744"/>
+    <path d="M 744 166 H 796" stroke-dasharray="3 7"/>
+  </g>
+
+  <g fill="#0F1720" stroke="#E8833A" stroke-width="2.5">
+    <circle cx="52" cy="166" r="6"/>
+    <circle cx="236" cy="166" r="6"/>
+    <circle cx="572" cy="166" r="6"/>
+    <circle cx="744" cy="166" r="6"/>
+  </g>
+
+  <!-- the lifted stop: the one the model chose -->
+  <circle cx="404" cy="122" r="8" fill="#E8833A"/>
+
+  <!-- destination pin -->
+  <g transform="translate(812 150)">
+    <path d="M 0 22 C 0 22 -11 8 -11 -1 A 11 11 0 1 1 11 -1 C 11 8 0 22 0 22 Z"
+          fill="#E8833A"/>
+    <circle cx="0" cy="-1" r="4" fill="#0F1720"/>
+  </g>
+
+  <!-- times -->
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+     font-size="11" fill="#55687A" text-anchor="middle">
+    <text x="52"  y="192">09:00</text>
+    <text x="236" y="192">10:45</text>
+    <text x="404" y="104">12:30</text>
+    <text x="572" y="192">14:00</text>
+    <text x="744" y="192">17:20</text>
+  </g>
+</svg>
