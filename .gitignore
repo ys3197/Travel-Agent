@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Secrets
+.env
+
+# Test / eval caches
+.pytest_cache/
+.deepeval/
+.deepeval-cache.json
+.coverage
+htmlcov/
+
+# Generated artifact — rebuild with `python -m rag.ingest` (~4 MB)
+rag/data/db/
+
+# Runtime tool-response cache
+cache/*.json
+
+# Editors / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Crawler debugging artifacts
+rag/data/debug_*

@@ -1,0 +1,17 @@
+# Web / API
+fastapi>=0.110.0
+uvicorn>=0.29.0
+streamlit>=1.35.0
+
+# LLM client — talks to a local vLLM server over the OpenAI-compatible API
+openai>=1.30.0
+httpx>=0.27.0
+
+# RAG
+chromadb>=0.5.0
+sentence-transformers>=3.0.0
+numpy>=1.26.0
+
+# Crawlers — only needed to rebuild rag/data/raw/
+beautifulsoup4>=4.12.0
+playwright>=1.44.0

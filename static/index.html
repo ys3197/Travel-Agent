@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rochester Travel Agent</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            amber: { 400: '#fbbf24', 500: '#f59e0b' },
+          },
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { color-scheme: dark; }
+    body { background: #0a0f1e; color: #e2e8f0; }
+
+    /* scrollbar */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 9px; }
+
+    /* pill radio/checkbox */
+    .pill input { display: none; }
+    .pill span {
+      display: inline-block; padding: 4px 12px; border-radius: 9999px;
+      border: 1px solid #334155; color: #94a3b8; font-size: 13px;
+      cursor: pointer; transition: all .15s;
+      user-select: none;
+    }
+    .pill input:checked + span {
+      background: #f59e0b; border-color: #f59e0b; color: #000; font-weight: 600;
+    }
+    .pill span:hover { border-color: #64748b; color: #e2e8f0; }
+
+    /* activity card */
+    .act-card {
+      border-radius: 16px; overflow: hidden;
+      background: #111827;
+      border: 1px solid #1e293b;
+    }
+    /* card image */
+    .act-card .card-img-wrap {
+      aspect-ratio: 16 / 9;
+      max-height: 180px;
+      overflow: hidden;
+      background: #1e293b;
+      border-radius: 14px 14px 0 0;
+    }
+    .act-card .card-img-wrap img {
+      width: 100% !important; height: 100% !important;
+      object-fit: cover !important; object-position: center !important;
+      display: block !important; transition: transform .5s ease;
+    }
+    .act-card:hover .card-img-wrap img { transform: scale(1.04); }
+    .act-card .card-img-wrap .no-img {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 40px; opacity: .2;
+    }
+    .act-card .content { padding: 14px 18px 18px; }
+
+    /* travel arrow */
+    .travel-arrow {
+      display: flex; align-items: center; gap: 12px;
+      padding: 8px 16px; color: #475569; font-size: 13px;
+    }
+    .travel-arrow .line { flex: 1; height: 1px; background: #1e293b; }
+
+    /* status dot pulse */
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .3; }
+    }
+    .dot-pulse span { display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+      background: #f59e0b; animation: pulse-dot 1.2s ease-in-out infinite; }
+    .dot-pulse span:nth-child(2) { animation-delay: .2s; }
+    .dot-pulse span:nth-child(3) { animation-delay: .4s; }
+
+    /* form section header */
+    .form-section { font-size: 11px; font-weight: 600; letter-spacing: .08em;
+      color: #f59e0b; text-transform: uppercase; margin-bottom: 6px; margin-top: 16px; }
+
+    /* input base */
+    input[type=text], input[type=number], input[type=date], input[type=time], textarea, select {
+      background: #0f172a; border: 1px solid #1e293b; border-radius: 8px;
+      color: #e2e8f0; padding: 7px 10px; font-size: 13px; width: 100%;
+      outline: none; transition: border-color .15s;
+    }
+    input[type=text]:focus, input[type=number]:focus, input[type=date]:focus,
+    input[type=time]:focus, textarea:focus {
+      border-color: #f59e0b;
+    }
+    textarea { resize: vertical; min-height: 72px; }
+
+    /* submit button */
+    #submit-btn {
+      width: 100%; padding: 10px; border-radius: 10px; font-weight: 600;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #000; font-size: 14px; cursor: pointer; border: none;
+      transition: opacity .15s, transform .1s;
+    }
+    #submit-btn:hover { opacity: .9; }
+    #submit-btn:active { transform: scale(.98); }
+    #submit-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* departure card */
+    .depart-card {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 18px; border-radius: 12px;
+      background: #0f172a; border: 1px solid #1e293b;
+    }
+
+    /* lunch card */
+    .lunch-card {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 18px; border-radius: 12px;
+      background: #0f172a; border: 1px solid #1e293b;
+    }
+
+    /* summary footer */
+    .summary-footer {
+      padding: 20px 24px; border-radius: 14px;
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      border: 1px solid #334155;
+    }
+
+    /* warning badge */
+    .warning-badge {
+      padding: 8px 14px; border-radius: 8px;
+      background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.3);
+      color: #fbbf24; font-size: 13px;
+    }
+  </style>
+</head>
+<body class="flex min-h-screen font-sans">
+
+<!-- ── Sidebar ───────────────────────────────────────── -->
+<aside style="width:300px;min-width:300px;background:#0d1424;border-right:1px solid #1e293b"
+       class="flex flex-col overflow-y-auto p-5">
+
+  <div class="mb-5">
+    <div class="text-amber-400 font-bold text-lg tracking-wide">🗺️ Rochester</div>
+    <div class="text-slate-500 text-xs">AI 一日行程规划</div>
+  </div>
+
+  <form id="plan-form" class="flex flex-col gap-2">
+
+    <div class="form-section">出行日期</div>
+    <input type="date" id="f-date">
+
+    <div class="form-section">出行方式</div>
+    <div class="flex flex-wrap gap-2">
+      <label class="pill"><input type="radio" name="transport" value="自驾" checked><span>自驾</span></label>
+      <label class="pill"><input type="radio" name="transport" value="租车"><span>租车</span></label>
+      <label class="pill"><input type="radio" name="transport" value="Uber/Lyft"><span>Uber/Lyft</span></label>
+      <label class="pill"><input type="radio" name="transport" value="公共交通"><span>公共交通</span></label>
+    </div>
+
+    <div class="form-section">消费风格</div>
+    <div class="flex gap-2">
+      <label class="pill"><input type="radio" name="style" value="穷游"><span>穷游</span></label>
+      <label class="pill"><input type="radio" name="style" value="适中" checked><span>适中</span></label>
+      <label class="pill"><input type="radio" name="style" value="精致"><span>精致</span></label>
+    </div>
+
+    <div class="form-section">出行人员</div>
+    <div class="flex flex-wrap gap-2">
+      <label class="pill"><input type="radio" name="group" value="独自" checked><span>独自</span></label>
+      <label class="pill"><input type="radio" name="group" value="两人"><span>两人</span></label>
+      <label class="pill"><input type="radio" name="group" value="家庭（含小孩）"><span>家庭+小孩</span></label>
+      <label class="pill"><input type="radio" name="group" value="朋友/同学"><span>朋友</span></label>
+    </div>
+
+    <div id="kids-age-row" class="hidden mt-1">
+      <label class="text-slate-400 text-xs mb-1 block">小孩年龄（最小的）</label>
+      <input type="number" id="f-kids-age" min="1" max="17" value="6" style="width:80px">
+    </div>
+
+    <div class="form-section">体力水平</div>
+    <div class="flex flex-wrap gap-2">
+      <label class="pill"><input type="radio" name="fitness" value="轻松型"><span>轻松</span></label>
+      <label class="pill"><input type="radio" name="fitness" value="普通型" checked><span>普通</span></label>
+      <label class="pill"><input type="radio" name="fitness" value="活跃型"><span>活跃</span></label>
+    </div>
+
+    <div class="form-section">兴趣偏好</div>
+    <div class="flex flex-wrap gap-2">
+      <label class="pill"><input type="checkbox" name="interests" value="自然风光" checked><span>自然</span></label>
+      <label class="pill"><input type="checkbox" name="interests" value="酒庄品酒"><span>酒庄</span></label>
+      <label class="pill"><input type="checkbox" name="interests" value="本地美食" checked><span>美食</span></label>
+      <label class="pill"><input type="checkbox" name="interests" value="历史文化"><span>历史</span></label>
+      <label class="pill"><input type="checkbox" name="interests" value="艺术展览"><span>艺术</span></label>
+      <label class="pill"><input type="checkbox" name="interests" value="户外运动"><span>户外</span></label>
+    </div>
+
+    <div class="form-section">预算 & 时间</div>
+    <div class="flex gap-2 items-center">
+      <span class="text-slate-500 text-xs whitespace-nowrap">人均 $</span>
+      <input type="number" id="f-budget" min="20" max="500" value="80" style="width:70px">
+    </div>
+    <div class="flex gap-2 mt-1">
+      <div class="flex-1">
+        <div class="text-slate-500 text-xs mb-1">出发</div>
+        <input type="time" id="f-start" value="09:00">
+      </div>
+      <div class="flex-1">
+        <div class="text-slate-500 text-xs mb-1">结束</div>
+        <input type="time" id="f-end" value="19:00">
+      </div>
+    </div>
+
+    <div class="form-section">出发地点</div>
+    <input type="text" id="f-departure" value="University of Rochester"
+           placeholder="酒店/宿舍地址…">
+
+    <div class="form-section">描述这次旅行</div>
+    <textarea id="f-input"
+      placeholder="想看瀑布和峡谷，不喜欢太商业化，午饭想吃本地特色…"></textarea>
+
+    <div class="form-section">特殊需求</div>
+    <input type="text" id="f-special" placeholder="轮椅无障碍 / 携带宠物（可不填）">
+
+    <div class="mt-4">
+      <button type="submit" id="submit-btn">🚀 开始规划</button>
+    </div>
+  </form>
+
+  <!-- download (hidden until result) -->
+  <div id="dl-area" class="mt-4 hidden">
+    <button id="dl-btn"
+      class="w-full py-2 rounded-lg border border-slate-600 text-slate-400 text-sm hover:border-amber-500 hover:text-amber-400 transition-colors">
+      📥 下载行程 Markdown
+    </button>
+  </div>
+
+</aside>
+
+<!-- ── Main ──────────────────────────────────────────── -->
+<main class="flex-1 overflow-y-auto">
+
+  <!-- Hero header -->
+  <div style="background:linear-gradient(135deg,#0a0f1e 0%,#0f2040 50%,#0a0f1e 100%);padding:32px 40px 24px">
+    <h1 class="text-2xl font-bold text-white">Rochester, New York</h1>
+    <p class="text-slate-500 text-sm mt-1">Finger Lakes Region · 一日游行程</p>
+  </div>
+
+  <div style="padding:24px 40px 48px">
+
+    <!-- Status -->
+    <div id="status-area" class="hidden mb-6">
+      <div class="flex items-center gap-3 p-4 rounded-xl" style="background:#0f172a;border:1px solid #1e293b">
+        <div class="dot-pulse"><span></span><span></span><span></span></div>
+        <span id="status-msg" class="text-slate-300 text-sm">准备中…</span>
+      </div>
+    </div>
+
+    <!-- Warnings -->
+    <div id="warnings-area" class="hidden mb-6 flex flex-col gap-2"></div>
+
+    <!-- Result -->
+    <div id="result-area" class="hidden">
+      <!-- meta bar -->
+      <div id="meta-bar" class="flex gap-4 mb-6 text-sm text-slate-500"></div>
+      <!-- activities -->
+      <div id="activities-list" class="flex flex-col gap-3"></div>
+      <!-- footer -->
+      <div id="summary-footer" class="hidden mt-6 summary-footer"></div>
+    </div>
+
+    <!-- Empty state -->
+    <div id="empty-state" class="flex flex-col items-center justify-center" style="padding-top:80px">
+      <div class="text-6xl mb-4">🏔️</div>
+      <p class="text-slate-600 text-lg">填写左侧表单，开始规划你的 Rochester 一日游</p>
+    </div>
+
+  </div>
+</main>
+
+<script>
+// ── Helpers ────────────────────────────────────────────
+
+function today() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+// set default date
+document.getElementById('f-date').value = today();
+
+// show kids-age when group = 家庭
+document.querySelectorAll('input[name="group"]').forEach(r => {
+  r.addEventListener('change', () => {
+    document.getElementById('kids-age-row').classList.toggle('hidden', r.value !== '家庭（含小孩）' || !r.checked);
+  });
+});
+
+// ── Render activities ─────────────────────────────────
+
+function travelArrow(act) {
+  if (!act.travel_min_to_next) return '';
+  const icon = act.transport_to_next === 'drive' ? '🚗' : '🚶';
+  return `
+    <div class="travel-arrow">
+      <div class="line"></div>
+      <span>${icon} ${act.transport_to_next} · ${act.travel_min_to_next} min</span>
+      <div class="line"></div>
+    </div>`;
+}
+
+function renderDeparture(act) {
+  return `
+    <div class="depart-card">
+      <div style="width:36px;height:36px;border-radius:50%;background:#1e3a5f;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">📍</div>
+      <div>
+        <div class="text-slate-400 text-xs mb-0.5">出发地</div>
+        <div class="text-white font-semibold text-sm">${act.name}</div>
+      </div>
+    </div>
+    ${travelArrow(act)}`;
+}
+
+function renderLunch(act) {
+  return `
+    <div class="lunch-card">
+      <div style="width:36px;height:36px;border-radius:50%;background:#1a2e1a;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🍽️</div>
+      <div class="flex-1">
+        <div class="flex items-baseline gap-2">
+          <span class="text-white font-semibold text-sm">午餐</span>
+          <span class="text-slate-500 text-xs">${act.start_time} – ${act.end_time}</span>
+        </div>
+        ${act.notes ? `<div class="text-slate-400 text-xs mt-0.5">${act.notes}</div>` : ''}
+      </div>
+      <div class="text-amber-400 font-semibold text-sm">$${act.cost_usd}/人</div>
+    </div>
+    ${travelArrow(act)}`;
+}
+
+function renderAttraction(act) {
+  const imgHtml = act.image_url
+    ? `<img src="${act.image_url}" alt="${act.name}"
+           style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;">`
+    : `<div class="no-img">🏛️</div>`;
+
+  return `
+    <div class="act-card">
+      <div class="card-img-wrap">${imgHtml}</div>
+      <div class="content">
+        <span style="display:inline-block;padding:3px 10px;border-radius:9999px;font-size:11px;font-family:monospace;
+          background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.35);color:#fbbf24;margin-bottom:10px">
+          ${act.start_time} – ${act.end_time}
+        </span>
+        <div class="text-white font-bold text-lg leading-tight">${act.name}</div>
+        <div class="text-slate-500 text-xs mt-1">$${act.cost_usd}/人 · ${act.category}</div>
+        ${act.notes ? `<div class="text-slate-300 text-sm mt-2 leading-snug">${act.notes}</div>` : ''}
+      </div>
+    </div>
+    ${travelArrow(act)}`;
+}
+
+function renderItinerary(itinerary) {
+  if (!itinerary || typeof itinerary !== 'object') return;
+
+  const list = document.getElementById('activities-list');
+  list.innerHTML = '';
+
+  const activities = itinerary.activities || [];
+  activities.forEach(act => {
+    const el = document.createElement('div');
+    if (act.category === 'departure') el.innerHTML = renderDeparture(act);
+    else if (act.category === 'food')  el.innerHTML = renderLunch(act);
+    else                               el.innerHTML = renderAttraction(act);
+    list.appendChild(el);
+  });
+
+  // footer
+  const lastSlots = activities.filter(a => a.category !== 'departure');
+  const endTime = lastSlots.length ? lastSlots[lastSlots.length - 1].end_time : '';
+  const total = itinerary.total_cost_usd || 0;
+  const summary = itinerary.summary || '';
+
+  const footer = document.getElementById('summary-footer');
+  footer.innerHTML = `
+    <div class="flex items-center justify-between mb-3">
+      <span class="text-slate-400 text-sm">🏁 行程结束</span>
+      <span class="text-white font-semibold">${endTime}</span>
+    </div>
+    <div class="flex items-center justify-between mb-4">
+      <span class="text-slate-400 text-sm">全天预计费用</span>
+      <span class="text-amber-400 font-bold text-lg">$${total.toFixed(0)}/人</span>
+    </div>
+    ${summary ? `<div class="text-slate-300 text-sm leading-relaxed border-t border-slate-700 pt-3">${summary}</div>` : ''}
+  `;
+  footer.classList.remove('hidden');
+}
+
+// ── Form submit ────────────────────────────────────────
+
+let markdownContent = '';
+
+document.getElementById('plan-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const interests = [...document.querySelectorAll('input[name="interests"]:checked')].map(i => i.value);
+  if (!interests.length) { alert('请至少选择一个兴趣偏好'); return; }
+
+  const group = document.querySelector('input[name="group"]:checked').value;
+  const hasKids = group === '家庭（含小孩）';
+
+  const payload = {
+    date:       document.getElementById('f-date').value || today(),
+    transport:  document.querySelector('input[name="transport"]:checked').value,
+    style:      document.querySelector('input[name="style"]:checked').value,
+    group,
+    fitness:    document.querySelector('input[name="fitness"]:checked').value,
+    interests,
+    budget:     parseInt(document.getElementById('f-budget').value) || 80,
+    start_time: document.getElementById('f-start').value || '09:00',
+    end_time:   document.getElementById('f-end').value || '19:00',
+    departure:  document.getElementById('f-departure').value.trim() || 'University of Rochester',
+    user_input: document.getElementById('f-input').value.trim(),
+    special:    document.getElementById('f-special').value.trim(),
+    has_kids:   hasKids,
+    kids_age:   hasKids ? (parseInt(document.getElementById('f-kids-age').value) || 6) : null,
+  };
+
+  // reset UI
+  document.getElementById('submit-btn').disabled = true;
+  document.getElementById('submit-btn').textContent = '规划中…';
+  document.getElementById('empty-state').classList.add('hidden');
+  document.getElementById('result-area').classList.add('hidden');
+  document.getElementById('warnings-area').classList.add('hidden');
+  document.getElementById('summary-footer').classList.add('hidden');
+  document.getElementById('dl-area').classList.add('hidden');
+  document.getElementById('status-area').classList.remove('hidden');
+  document.getElementById('status-msg').textContent = '准备中…';
+  markdownContent = '';
+
+  try {
+    const response = await fetch('/api/plan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buf = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += decoder.decode(value, { stream: true });
+
+      // parse SSE lines
+      const lines = buf.split('\n');
+      buf = lines.pop(); // keep incomplete line
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        let event;
+        try { event = JSON.parse(line.slice(6)); } catch { continue; }
+
+        if (event.type === 'status') {
+          document.getElementById('status-msg').textContent = event.data;
+
+        } else if (event.type === 'result') {
+          const d = event.data;
+          markdownContent = d.markdown || '';
+
+          // meta bar
+          document.getElementById('meta-bar').innerHTML = `
+            <span style="padding:4px 10px;border-radius:6px;background:#0f172a;border:1px solid #1e293b;color:#64748b">
+              ⏱ ${d.latency_sec.toFixed(1)}s
+            </span>
+            <span style="padding:4px 10px;border-radius:6px;background:#0f172a;border:1px solid #1e293b;color:#64748b">
+              ${payload.date}
+            </span>`;
+
+          // warnings
+          if (d.warnings && d.warnings.length) {
+            const wa = document.getElementById('warnings-area');
+            wa.innerHTML = d.warnings.map(w => `<div class="warning-badge">${w}</div>`).join('');
+            wa.classList.remove('hidden');
+          }
+
+          renderItinerary(d.itinerary);
+          document.getElementById('result-area').classList.remove('hidden');
+          document.getElementById('dl-area').classList.remove('hidden');
+
+        } else if (event.type === 'error') {
+          document.getElementById('status-msg').textContent = '❌ ' + event.data;
+        }
+      }
+    }
+
+  } catch (err) {
+    document.getElementById('status-msg').textContent = '❌ 网络错误：' + err.message;
+  } finally {
+    document.getElementById('status-area').classList.add('hidden');
+    document.getElementById('submit-btn').disabled = false;
+    document.getElementById('submit-btn').textContent = '🚀 开始规划';
+  }
+});
+
+// ── Download ───────────────────────────────────────────
+
+document.getElementById('dl-btn').addEventListener('click', () => {
+  if (!markdownContent) return;
+  const blob = new Blob([markdownContent], { type: 'text/markdown' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'rochester_itinerary.md';
+  a.click();
+});
+</script>
+</body>
+</html>
