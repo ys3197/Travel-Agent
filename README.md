@@ -1,10 +1,29 @@
-# Travel Agent — Rochester Day-Trip Planner
+```
+████████╗██████╗  █████╗ ██╗   ██╗███████╗██╗
+╚══██╔══╝██╔══██╗██╔══██╗██║   ██║██╔════╝██║
+   ██║   ██████╔╝███████║██║   ██║█████╗  ██║
+   ██║   ██╔══██╗██╔══██║╚██╗ ██╔╝██╔══╝  ██║
+   ██║   ██║  ██║██║  ██║ ╚████╔╝ ███████╗███████╗
+   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝  ╚═══╝  ╚══════╝╚══════╝
+ █████╗  ██████╗ ███████╗███╗   ██╗████████╗
+██╔══██╗██╔════╝ ██╔════╝████╗  ██║╚══██╔══╝
+███████║██║  ███╗█████╗  ██╔██╗ ██║   ██║
+██╔══██║██║   ██║██╔══╝  ██║╚██╗██║   ██║
+██║  ██║╚██████╔╝███████╗██║ ╚████║   ██║
+╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝  ╚═══╝   ╚═╝
+```
 
-A multi-agent itinerary planner for the Rochester / Finger Lakes area, built around one
+[![tests](https://github.com/ys3197/Travel-Agent/actions/workflows/tests.yml/badge.svg)](https://github.com/ys3197/Travel-Agent/actions/workflows/tests.yml)
+[![python](https://img.shields.io/badge/python-3.11+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![model](https://img.shields.io/badge/model-Qwen2.5--3B--AWQ-6f42c1)](https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-AWQ)
+[![served by](https://img.shields.io/badge/served%20by-vLLM-orange)](https://github.com/vllm-project/vllm)
+[![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
+A multi-agent day-trip planner for Rochester and the Finger Lakes, built around one
 guiding constraint: **the language model chooses, Python computes.**
 
 It runs on a **3B model served locally by vLLM** — no frontier model in the request path.
-Everything that has a verifiable right answer (schedule arithmetic, cost totals, budget
+Everything with a verifiable right answer (schedule arithmetic, cost totals, budget
 repair, hard constraints) is done in Python; the model is only asked to do the two things
 it is actually good at — picking which attractions suit a person, and writing a sentence
 about each one.
@@ -12,6 +31,10 @@ about each one.
 ```
 UserProfile ─▶ Pilot (rule-based intent) ─▶ agent path ─▶ Verifier ─▶ itinerary
 ```
+
+---
+
+[Why](#why-it-is-built-this-way) · [Architecture](#architecture) · [Retrieval](#retrieval-exact-lookup-vs-semantic-search) · [Attraction table](#the-attraction-table) · [Evaluation](#evaluation) · [Setup](#setup) · [Layout](#layout) · [Data](#data-provenance)
 
 ---
 

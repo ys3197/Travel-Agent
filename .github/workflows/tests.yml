@@ -1,0 +1,35 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  deterministic:
+    name: deterministic suite
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      # The deterministic tests need neither a vLLM server nor an API key, and
+      # chromadb / torch / sentence-transformers are imported lazily inside
+      # functions — so CI installs only what the import graph actually reaches
+      # at module level. Keeps the run under a minute.
+      - name: Install minimal dependencies
+        run: pip install pytest openai httpx python-dotenv
+
+      - name: Rule-based guardrails and structural checks
+        run: pytest evals/test_verifier_unit.py evals/test_structural_checks.py -v
+
+      # The LLM-judge cases live in the same directory and must skip cleanly
+      # rather than error out when vLLM and deepeval are unavailable.
+      - name: Whole suite degrades gracefully without external services
+        run: pytest evals/ -q
